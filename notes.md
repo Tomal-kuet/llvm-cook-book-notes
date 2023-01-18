@@ -4,7 +4,8 @@
 - opt --print-passes
 ```
 
-    The syntex for LLVM newer version is different from the LLVM cook book. The new commands are listed below, commands from the book not list here denotes the book command still works:
+The syntex for LLVM newer version is different from the LLVM cook book. The new commands are listed below, commands from the book not list here denotes the book command still works:
+
 ```
 - opt  testfile.ll -S -p instcombine -o output.ll 
 - opt  testfile.ll -S -p deadargelim -o output-dead.ll
@@ -34,9 +35,10 @@ of LLVM IR into the container format.
 ### The llgo compiler is the LLVM-based frontend for Go written in Go language only. Using this frontend, we can generate the LLVM assembly code from a program written in Go. ### 
 
  
- 
-  
- 
+ <br/><br/> 
+
+-----------------------------------------------------------------------------------------------------------
+<br/><br/> 
 
 # Chapter 2 #
 
