@@ -110,6 +110,21 @@ The reasoning is specified in the comments of the LLVM source code;
    /// getAnalysis<AnalysisType>() function, below.
    virtual void getAnalysisUsage(AnalysisUsage &) const;
 ```
+commands to load:
+```
+opt -enable-new-pm=0 -load /home/tomal/llvm_all/llvm-project/build/lib/LLVMFuncBlockCount.so -funcblockcount sample-loop-count.ll > /dev/null
+```
+Sample output:
+```
+Function main
+Loop level 0 has 11 blocks
+Loop level 1 has 3 blocks
+Loop level 1 has 3 blocks
+Loop level 0 has 15 blocks
+Loop level 1 has 7 blocks
+Loop level 2 has 3 blocks
+Loop level 1 has 3 blocks
+```
 ## Important notes ##
 
 The LLVM code representation is designed to be used in three different forms: as an in-memory compiler IR, as an on-disk bitcode representation (suitable for fast loading by a Just-In-Time compiler), and as a human readable assembly language representation. 
