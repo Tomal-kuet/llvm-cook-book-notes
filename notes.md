@@ -86,6 +86,7 @@ opt -enable-new-pm=0 -load /home/tomal/llvm_all/llvm-project/build/lib/LLVMFuncB
 - Then we have to create a CMakeLists.txt file with in the directory. Example of are in [Example CMake](ch4/FuncBlockCount/CMakeLists.txt)
 - Lastly we have to create a pass itself. It will be a cpp file. [FunctionBlockcount cpp file](ch4/FuncBlockCount/FuncBlockCount.cpp)
 - Take a look at the [Link](https://llvm.org/docs/WritingAnLLVMPass.html) to understand the step by step explanation.
+- While naming the pass and .so (in CMake) file, we need to give unique names. If there is a issue naming it most likely the CMake files or Registerpass function call names.
 <br/><br/> 
 ## Important notes ##
 
