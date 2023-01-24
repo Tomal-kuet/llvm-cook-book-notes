@@ -41,4 +41,53 @@ of LLVM IR into the container format.
 <br/><br/> 
 
 # Chapter 2 #
+Quickly went over this chapter for now. It demostrates AST, lexical parser for a toy language. If required will revisit this chapter.
+
+ 
+ <br/><br/> 
+
+-----------------------------------------------------------------------------------------------------------
+<br/><br/> 
+
+# Chapter 3 #
+Quickly went over this chapter for now. It extends from the previous chapter. If required will revisit this chapter.
+
+ 
+ <br/><br/> 
+
+-----------------------------------------------------------------------------------------------------------
+<br/><br/> 
+
+# Chapter 4 #
+Below link is helpful to understand LLVM IR basics along with other things.
+[LLVM IR](https://llvm.org/docs/LangRef.html)
+
+Below are modified commands for new llvm version to see debug outputs of different passes run:
+```
+opt --debug-pass-manager=verbose  -O3 -S example.ll -o e-opt1.ll
+
+```
+<br/><br/>
+Helo world pass loading
+```
+opt -enable-new-pm=0 -load /home/tomal/llvm_all/llvm-project/build/lib/LLVMHello.so -hello hello.bc > /dev/null
+```
+<br/><br/>
+FunctionBlock count pass loading & simple.c compilation steps:
+```
+clang -o0 -S -emit-llvm sample.c -o sample.ll
+
+opt -enable-new-pm=0 -load /home/tomal/llvm_all/llvm-project/build/lib/LLVMFuncBlockCount.so -funcblockcount sample.ll > /dev/null
+```
+<br/><br/>
+
+## Steps to develop you own pass ##
+- First we have to create a folder in <"llvm root direcotry">/llvm/lib/Transforms with pass name
+- Then we have to create a CMakeLists.txt file with in the directory. Example of are in [Example CMake](ch4/FuncBlockCount/CMakeLists.txt)
+- Lastly we have to create a pass itself. It will be a cpp file. [FunctionBlockcount cpp file](ch4/FuncBlockCount/FuncBlockCount.cpp)
+- Take a look at the [Link](https://llvm.org/docs/WritingAnLLVMPass.html) to understand the step by step explanation.
+<br/><br/> 
+## Important notes ##
+
+The LLVM code representation is designed to be used in three different forms: as an in-memory compiler IR, as an on-disk bitcode representation (suitable for fast loading by a Just-In-Time compiler), and as a human readable assembly language representation. 
 
