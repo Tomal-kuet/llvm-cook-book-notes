@@ -73,6 +73,7 @@ Helo world pass loading
 opt -enable-new-pm=0 -load /home/tomal/llvm_all/llvm-project/build/lib/LLVMHello.so -hello hello.bc > /dev/null
 ```
 <br/><br/>
+
 FunctionBlock count pass loading & simple.c compilation steps:
 ```
 clang -o0 -S -emit-llvm sample.c -o sample.ll
@@ -87,7 +88,28 @@ opt -enable-new-pm=0 -load /home/tomal/llvm_all/llvm-project/build/lib/LLVMFuncB
 - Lastly we have to create a pass itself. It will be a cpp file. [FunctionBlockcount cpp file](ch4/FuncBlockCount/FuncBlockCount.cpp)
 - Take a look at the [Link](https://llvm.org/docs/WritingAnLLVMPass.html) to understand the step by step explanation.
 - While naming the pass and .so (in CMake) file, we need to give unique names. If there is a issue naming it most likely the CMake files or Registerpass function call names.
+- Note that load the shared object file with opt tool does not mean running the program. It will run the pass while compiling the program. In the pass we have a print statement which shows the function names.
+- The ```opt``` tool can used to load shared object files with either bitcode files or llvm IR. The hello pass is loaded here from bitcode(hello.bc) and the sample.ll is in llvm IR form.
+
 <br/><br/> 
+## Using a pass result with a different pass ##
+We can use another pass results in our implemented pass. The book shows and explain an example of this. But for the later versions the source code needs to be changed.
+We need to overwrite the ```getAnalysisUsage``` function  and add the ```LoopInfoWrapperPass``` as the parameter in ```addRequired``` function of the object 
+
+```
+  virtual void getAnalysisUsage(AnalysisUsage &AU) const override {
+    AU.addRequired<LoopInfoWrapperPass>();
+  }
+```
+
+The reasoning is specified in the comments of the LLVM source code;
+```
+ /// getAnalysisUsage - This function should be overriden by passes that need
+   /// analysis information to do their job.  If a pass specifies that it uses a
+   /// particular analysis result to this function, it can then use the
+   /// getAnalysis<AnalysisType>() function, below.
+   virtual void getAnalysisUsage(AnalysisUsage &) const;
+```
 ## Important notes ##
 
 The LLVM code representation is designed to be used in three different forms: as an in-memory compiler IR, as an on-disk bitcode representation (suitable for fast loading by a Just-In-Time compiler), and as a human readable assembly language representation. 
