@@ -113,9 +113,22 @@ The reasoning is specified in the comments of the LLVM source code;
 commands to load:
 ```
 opt -enable-new-pm=0 -load /home/tomal/llvm_all/llvm-project/build/lib/LLVMFuncBlockCount.so -funcblockcount sample-loop-count.ll > /dev/null
+
+opt -enable-new-pm=0 -load /home/tomal/llvm_all/llvm-project/build/lib/LLVMFuncBlockCount.so -funcblockcount sample-loop-count.ll -disable-output -debug-pass=Structure
 ```
 Sample output:
+
 ```
+Pass Arguments:  -targetlibinfo -tti -targetpassconfig -domtree -loops -funcblockcount -verify
+Target Library Information
+Target Transform Information
+Target Pass Configuration
+  ModulePass Manager
+    FunctionPass Manager
+      Dominator Tree Construction
+      Natural Loop Information
+      Function Block Count
+      Module Verifier
 Function main
 Loop level 0 has 11 blocks
 Loop level 1 has 3 blocks
@@ -125,6 +138,48 @@ Loop level 1 has 7 blocks
 Loop level 2 has 3 blocks
 Loop level 1 has 3 blocks
 ```
+
+<br/><br/>
+
+## Register a pass with pass manager ##
+
+Following the steps described in the llvm book resulted in the following error:
+```
+home/tomal/llvm_all/llvm-project/llvm/include/llvm/InitializePasses.h:420:44: error: variable or field ‘initializeFuncBlockCountPass’ declared void
+  420 | void initializeFuncBlockCountPass (Registry); // llvm cook book testing for pass manager registration
+```
+The new pass manager is different.
+<br/> <br/>
+This [Link](https://llvm.org/docs/WritingAnLLVMNewPMPass.html) works. It a simpler approch now to register passes with pass manager.
+
+Follow the steps and lastly instead of ninja build i am using make. After the modifications just run ```make opt``` then write the [a.ll](./ch4/a.ll) & invoke opt with ```opt -disable-output a.ll -p=helloworld```
+
+## Writing an analysis pass ##
+
+Same as the previous the exact code from the book works.
+commands to load:
+```
+opt -enable-new-pm=0 -load /home/tomal/llvm_all/llvm-project/build/lib/LLVMOpCodeCounter.so -opcodeCounter anlysis.bc
+```
+Sample output:
+```
+Function func
+add: 3
+alloca: 5
+br: 8
+icmp: 3
+load: 10
+ret: 1
+select: 1
+store: 8
+zext: 1
+```
+
+Commands differ from the book:
+```
+opt -enable-new-pm=0 -aa-eval -disable-output anlysis.bc
+```
+
 ## Important notes ##
 
 The LLVM code representation is designed to be used in three different forms: as an in-memory compiler IR, as an on-disk bitcode representation (suitable for fast loading by a Just-In-Time compiler), and as a human readable assembly language representation. 
