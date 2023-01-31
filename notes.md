@@ -184,3 +184,32 @@ opt -enable-new-pm=0 -aa-eval -disable-output anlysis.bc
 
 The LLVM code representation is designed to be used in three different forms: as an in-memory compiler IR, as an on-disk bitcode representation (suitable for fast loading by a Just-In-Time compiler), and as a human readable assembly language representation. 
 
+-----------------------------------------------------------------------------------------------------------
+<br/><br/> 
+
+# Chapter 5 #
+There were some compilation bugs for the given source code in the book. The modified pass is documented in this [folder](./ch5/dead/).
+
+Sample output:
+```
+Instructions:  %1 = call i32 @strlen(i8* null)
+Instructions:  ret void
+
+ passed the while loop
+
+ passed the for loop
+
+ passed all
+; ModuleID = 'testcode.ll'
+source_filename = "testcode.ll"
+
+; Function Attrs: nounwind memory(read)
+declare i32 @strlen(i8*) #0
+
+define void @test() {
+  %1 = call i32 @strlen(i8* null)
+  ret void
+}
+
+attributes #0 = { nounwind memory(read) }
+```
