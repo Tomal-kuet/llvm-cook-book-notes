@@ -319,5 +319,23 @@ a node in the DAG
 -----------------------------------------------------------------------------------------------------------
 <br/><br/> 
 
-# Chapter 6 #
-The dag commands 
+# Chapter 7 #
+
+## Important notes ##
+The getAnalysisUsage() function determines which passes will run before this
+pass to get statistics that can be used in this pass.
+
+## Interval printing ##
+We don't really need wrting the code to print the intervals. We can just call `print` function to get the same output in the current version. Below are the modified code:
+```
+ bool LiveIntervals::computeVirtRegInterval(LiveInterval &LI) {
+    assert(LICalc && "LICalc not initialized.");
+    assert(LI.empty() && "Should only compute empty intervals.");
+    LICalc->reset(MF, getSlotIndexes(), DomTree, &getVNInfoAllocator());
+    LICalc->calculate(LI, MRI->shouldTrackSubRegLiveness(LI.reg()));
+    llvm::raw_ostream &output = llvm::outs(); //+
+    computeDeadValues(LI, nullptr); //+
+    print(output, nullptr); //+
+    return computeDeadValues(LI, nullptr);
+ }
+``` 
