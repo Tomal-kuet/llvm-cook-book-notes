@@ -213,3 +213,111 @@ define void @test() {
 
 attributes #0 = { nounwind memory(read) }
 ```
+## Inlining transformation pass ##
+Skipped
+
+## Memory optimization pass ##
+This test is based on a existing mass call `memcpyopt`, which tries to replace the `memcpy` function call to `memset` for speed up. If we compare the [memcopytest](./ch5/memcopytest.ll) file and sample output below we can see the `memcpy` is repalced my `memset`. Commands to run the module:
+```
+ opt -enable-new-pm=0 -memcpyopt -S memcopytest.ll
+```
+Sample output:
+```
+; ModuleID = 'memcopytest.ll'
+source_filename = "memcopytest.ll"
+
+@cst = internal constant [3 x i32] [i32 -1, i32 -1, i32 -1], align 4
+
+; Function Attrs: nounwind
+declare void @foo(i32*) #0
+
+; Function Attrs: nounwind
+define void @test1() #0 {
+  %arr = alloca [3 x i32], align 4
+  %arr_i8 = bitcast [3 x i32]* %arr to i8*
+  call void @llvm.memset.p0i8.i64(i8* align 4 %arr_i8, i8 -1, i64 12, i1 false)
+  %arraydecay = getelementptr inbounds [3 x i32], [3 x i32]* %arr, i64 0, i64 0
+  call void @foo(i32* %arraydecay) #0
+  ret void
+}
+
+; Function Attrs: nocallback nofree nounwind willreturn memory(argmem: readwrite)
+declare void @llvm.memcpy.p0i8.p0i8.i64(i8* noalias nocapture writeonly, i8* noalias nocapture readonly, i64, i1 immarg) #1
+
+; Function Attrs: nocallback nofree nounwind willreturn memory(argmem: write)
+declare void @llvm.memset.p0i8.i64(i8* nocapture writeonly, i8, i64, i1 immarg) #2
+
+attributes #0 = { nounwind }
+attributes #1 = { nocallback nofree nounwind willreturn memory(argmem: readwrite) }
+attributes #2 = { nocallback nofree nounwind willreturn memory(argmem: write) }
+```
+
+## Combining LLVM IR ##
+The example shown in the book is alredy implemented in the current version.If we run the comment `opt -enable-new-pm=0 -instcombine -S combine-test.ll` on the [file](./ch5/combine-test.ll) we can see the below output same as the book:
+```
+; ModuleID = 'combine-test.ll'
+source_filename = "combine-test.ll"
+
+define i32 @test19(i32 %x, i32 %y, i32 %z) {
+  %xor1 = xor i32 %y, %z
+  %1 = and i32 %xor1, %x
+  ret i32 %1
+}
+```
+See the InstCombineAndOrXor.cpp file in LLVM repository to understand what kind of combining can be done. These depend on the mathmatical reductions.
+
+## Transforming and optimizing loops ##
+Command: `opt -enable-new-pm=0 -licm -S testlicm.ll `
+Sample-output:
+```
+; ModuleID = 'testlicm.ll'
+source_filename = "testlicm.ll"
+
+define void @testfunc(i32 %i) {
+  %i2 = mul i32 %i, 17
+  br label %Loop
+
+Loop:                                             ; preds = %Loop, %0
+  %j = phi i32 [ 0, %0 ], [ %Next, %Loop ]
+  %Next = add i32 %j, %i2
+  %cond = icmp eq i32 %Next, 0
+  br i1 %cond, label %Out, label %Loop
+
+Out:                                              ; preds = %Loop
+  ret void
+}
+```
+Command for deletion loop pass:
+```opt -enable-new-pm=0 -loop-deletion -S deletetest.ll```
+## Important notes ##
+
+-----------------------------------------------------------------------------------------------------------
+<br/><br/> 
+
+# Chapter 6 #
+The dag commands work perfectly with `llc`. Note that the output does not exactly match with the book.
+Important functions for instrumentation:
+- `BuildMI` build arbitrary machine instructions.
+- `getBasicBlock` to get the current basic block of the instructions.
+- `std::vector<MachineBasicBlock *> Predecessors` to keep track of the Predecessors.
+-  `std::vector<MachineBasicBlock *> Successors` to keep track of the Successors.
+-  `insert` unction should be added to insert a machine instruction into the basic
+block
+- `SplitCriticalEdge()` splits critical edges from current block to the successor.
+
+Most of this chapter is theory, gives you an idea how selectionDAG working from IR to machine code.
+
+## Important notes ##
+After the IR transformations and optimizations are over, the LLVM IR instruction passes
+through a Selection DAG node incarnation. Selection DAG nodes are created by the
+SelectionDAGBuilder class. The SelectionDAGBuilder::visit() function call from
+the SelectionDAGISel class visits each IR instruction for creating an SDAGNode node.
+The method that handles an SDiv instruction is SelectionDAGBuilder::visitSDiv . It
+requests a new SDNode node from the DAG with the ISD::SDIV opcode, which then becomes
+a node in the DAG
+
+-----------------------------------------------------------------------------------------------------------
+<br/><br/> 
+
+# Chapter 6 #
+The dag commands 
